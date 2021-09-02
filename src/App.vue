@@ -1,17 +1,34 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <line-chart :chart-data="chartData" :options="chartOptions"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import LineChart from './components/Chart.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    LineChart
+  },
+  data() {
+    return {
+      chartData: {
+      labels: ['January', 'February'],
+      datasets: [
+        {
+          label: 'Data One',
+          backgroundColor: '#f87979',
+          data: [40, 20]
+        }
+      ]
+    },
+    chartOptions: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+    }
   }
 }
 </script>
@@ -19,8 +36,8 @@ export default {
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+   -webkit-font-smoothing: antialiased;
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
