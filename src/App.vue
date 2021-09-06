@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <section class="controls">
-      <form>
+      <form @submit.prevent="updateChart()">
         <fieldset>
           <datepicker 
             name="startDate"
@@ -25,7 +25,6 @@
 import LineChart from './components/Chart.vue'
 import Datepicker from 'vuejs-datepicker';
 
-
 export default {
   name: 'App',
   components: {
@@ -34,22 +33,41 @@ export default {
   data() {
     return {
       chartData: {
-      labels: ['January', 'February', 'March', 'April'],
-      datasets: [
-        {
-          label: 'Data One',
+        labels: ['January', 'February', 'March', 'April'],
+        datasets: [{
+          label: 'Data legend',
           backgroundColor: '#f87979',
-          data: [40, 20, 25, 12]
-        }
-      ]
-    },
-    chartOptions: {
-      responsive: true,
-      maintainAspectRatio: false
+          data: [4000, 2000, 2500, 1200],
+          startDate: '2013-09-01',
+          endDate: '2015-09-02'
+        }]
+      },
+      chartOptions: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
     }
+  },
+  methods: {
+    async updateChart() {
+      alert('update chart')
+
+      await this.fetchData();
+    },
+    async fetchData() {
+      try {
+/*         const response = await fetch(`https://www.bitstamp.net/api/v2/ticker/btceur?start=${this.chartData.datasets.startDate}&end=${this.chartData.datasets.endDate}`); */
+        const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.chartData.datasets[0].startDate}&end=${this.chartData.datasets[0].endDate}`)
+        let fetchData = await response.json();
+
+        console.log(fetchData.bpi)
+      } catch(error) {
+        console.log('error')
+      }
     }
   }
-}
+
+} 
 </script>
 
 <style lang="scss">
