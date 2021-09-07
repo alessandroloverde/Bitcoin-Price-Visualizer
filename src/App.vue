@@ -5,14 +5,18 @@
         <fieldset>
           <datepicker 
             name="startDate"
-            :value="new Date('2013-09-01')"
+            :value="startSource"
+            @selected="updateDate($event, 'startDate')"
           />
+          <input type="text" :value="startSource">
         </fieldset>
         <fieldset>
           <datepicker 
             name="endDate"
-            :value="new Date('2016-10-02')"
+            :value="endSource"
+            @selected="updateDate($event, 'endDate')"
           />
+          <input type="text" :value="endSource">
         </fieldset>
         <button type="submit">Render chart</button>
       </form>
@@ -23,7 +27,9 @@
 
 <script>
 import LineChart from './components/Chart.vue'
-import Datepicker from 'vuejs-datepicker';
+import Datepicker from 'vuejs-datepicker'
+import moment from 'moment'
+
 
 export default {
   name: 'App',
@@ -45,10 +51,37 @@ export default {
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false
-      }
+      },
+      datepicker: {
+        start: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
+        end: moment(new Date()).format('YYYY-MM-DD')
+      }   
     }
   },
+  computed: {
+      startSource: function() {
+        return this.chartData.datasets[0].startDate
+      },
+      endSource: function() {
+        return this.chartData.datasets[0].endDate
+      }
+  },
   methods: {
+    updateDate(date, type) {
+      const formattedDate = moment(date).format('YYYY-MM-DD');
+      
+      if(type == 'startDate') {
+        date = formattedDate;
+        this.chartData.datasets[0].startDate = formattedDate;
+        this.datepicker.start = formattedDate;
+
+      } else {
+        date = formattedDate;
+        this.chartData.datasets[0].endDate = formattedDate;
+        this.datepicker.end = formattedDate;    
+      }
+      
+    },
     async updateChart() {
       alert('update chart')
 
@@ -56,11 +89,10 @@ export default {
     },
     async fetchData() {
       try {
-/*         const response = await fetch(`https://www.bitstamp.net/api/v2/ticker/btceur?start=${this.chartData.datasets.startDate}&end=${this.chartData.datasets.endDate}`); */
-        const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.chartData.datasets[0].startDate}&end=${this.chartData.datasets[0].endDate}`)
+        const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
         let fetchData = await response.json();
 
-        console.log(fetchData.bpi)
+       // console.log(this.startSource, this.endSource, fetchData.bpi)
       } catch(error) {
         console.log('error')
       }
