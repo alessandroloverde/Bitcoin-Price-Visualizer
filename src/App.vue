@@ -1,5 +1,10 @@
 <template>
   <div id="app">
+    <Loading
+      :active="!loaded"
+      :can-cancel="false"
+      :is-full-page="true"
+    />
     <section class="controls">
       <form @submit.prevent="updateChart()">
         <fieldset>
@@ -24,24 +29,27 @@
       </form>
     </section>
     <div id="chartWrapper">
-     <line-chart :chart-data="chartData" :options="chartOptions"/>
+     <line-chart v-if="loaded" :chart-data="chartData" :options="chartOptions"/>
     </div>
   </div>
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay'
 import LineChart from './components/Chart.vue'
 import Datepicker from 'vuejs-datepicker'
 import moment from 'moment'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 
 export default {
   name: 'App',
   components: {
-    LineChart, Datepicker
+    LineChart, Datepicker, Loading
   },
   data() {
     return {
+      loaded: false,
       chartData: {
         labels: [],
         datasets: [{
@@ -79,16 +87,14 @@ export default {
       type === 'startDate' ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD') : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
     },
     async updateChart() {
-      alert('update chart')
-
+      this.loaded = false;
+      
       await this.fetchData();
     },
     async fetchData() {
       try {
         const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
         let fetchData = await response.json();
-
-        alert('data fetched')
 
         this.chartData = {
           labels: Object.keys(fetchData.bpi),
@@ -111,13 +117,16 @@ export default {
             }
           },
         }
-
+        this.loaded = true;
       } catch(error) {
+        this.loaded = true;
         console.log('error')
       }
     }
   },
   async mounted() {
+    this.loaded = false
+
     await this.fetchData()
   }
 
@@ -149,7 +158,6 @@ export default {
     button[type="submit"] { margin-left: auto; }
   }
   #chartWrapper {
-    height: 100vh !important;
-    outline: 1px solid red;
+
   }
 </style>
