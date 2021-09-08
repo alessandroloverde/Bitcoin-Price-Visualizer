@@ -3,7 +3,7 @@
     <section class="controls">
       <form @submit.prevent="updateChart()">
         <fieldset>
-          <datepicker 
+          <Datepicker 
             name="startDate"
             :value="startSource"
             @selected="updateDate($event, 'startDate')"
@@ -11,7 +11,7 @@
           <input type="text" :value="startSource">
         </fieldset>
         <fieldset>
-          <datepicker 
+          <Datepicker 
             name="endDate"
             :value="endSource"
             @selected="updateDate($event, 'endDate')"
@@ -70,20 +70,9 @@ export default {
     }
   },
   methods: {
-/*     updateDate(date, type) {
-      const formattedDate = moment(date).format('YYYY-MM-DD');
-      
-      if(type == 'startDate') {
-        date = formattedDate;
-        this.chartData.datasets[0].startDate = formattedDate;
-        this.datepicker.start = formattedDate;
-
-      } else {
-        date = formattedDate;
-        this.chartData.datasets[0].endDate = formattedDate;
-        this.datepicker.end = formattedDate;    
-      }      
-    }, */
+    updateDate(date, type) {
+      type === 'startDate' ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD') : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
+    },
     async updateChart() {
       alert('update chart')
 
@@ -94,12 +83,16 @@ export default {
         const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
         let fetchData = await response.json();
 
+        alert('data fetched')
+
         this.chartData = {
           labels: Object.keys(fetchData.bpi),
           datasets: [{
             data: Object.values(fetchData.bpi),
             backgroundColor: '#BFC8AD',
-            borderColor: '#90B494'
+            borderColor: '#90B494',
+            startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
+            endDate: moment(new Date()).format('YYYY-MM-DD')
           }],       
           chartOptions: {
             responsive: true,
@@ -113,6 +106,7 @@ export default {
             }
           },
         }
+
       } catch(error) {
         console.log('error')
       }
