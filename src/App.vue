@@ -21,7 +21,9 @@
         <button type="submit">Render chart</button>
       </form>
     </section>
-    <line-chart :chart-data="chartData" :options="chartOptions"/>
+    <div id="chartWrapper">
+     <line-chart :chart-data="chartData" :options="chartOptions"/>
+    </div>
   </div>
 </template>
 
@@ -39,35 +41,36 @@ export default {
   data() {
     return {
       chartData: {
-        labels: ['January', 'February', 'March', 'April'],
+        labels: [],
         datasets: [{
-          label: 'Data legend',
-          backgroundColor: '#f87979',
-          data: [4000, 2000, 2500, 1200],
-          startDate: '2013-09-01',
-          endDate: '2015-09-02'
+          data: [],
+          startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
+          endDate: moment(new Date()).format('YYYY-MM-DD')
         }]
       },
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
       },
-      datepicker: {
-        start: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
-        end: moment(new Date()).format('YYYY-MM-DD')
-      }   
     }
   },
   computed: {
-      startSource: function() {
-        return this.chartData.datasets[0].startDate
-      },
-      endSource: function() {
-        return this.chartData.datasets[0].endDate
-      }
+    startSource: function() {
+      return this.chartData.datasets[0].startDate
+    },
+    endSource: function() {
+      return this.chartData.datasets[0].endDate
+    }
   },
   methods: {
-    updateDate(date, type) {
+/*     updateDate(date, type) {
       const formattedDate = moment(date).format('YYYY-MM-DD');
       
       if(type == 'startDate') {
@@ -79,9 +82,8 @@ export default {
         date = formattedDate;
         this.chartData.datasets[0].endDate = formattedDate;
         this.datepicker.end = formattedDate;    
-      }
-      
-    },
+      }      
+    }, */
     async updateChart() {
       alert('update chart')
 
@@ -92,11 +94,32 @@ export default {
         const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
         let fetchData = await response.json();
 
-       // console.log(this.startSource, this.endSource, fetchData.bpi)
+        this.chartData = {
+          labels: Object.keys(fetchData.bpi),
+          datasets: [{
+            data: Object.values(fetchData.bpi),
+            backgroundColor: '#BFC8AD',
+            borderColor: '#90B494'
+          }],       
+          chartOptions: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+          },
+        }
       } catch(error) {
         console.log('error')
       }
     }
+  },
+  async mounted() {
+    await this.fetchData()
   }
 
 } 
@@ -109,7 +132,6 @@ export default {
     -webkit-font-smoothing: antialiased;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
   }
   fieldset { 
     border: none;
@@ -126,5 +148,9 @@ export default {
       margin: 1rem;
     }
     button[type="submit"] { margin-left: auto; }
+  }
+  #chartWrapper {
+    height: 100vh !important;
+    outline: 1px solid red;
   }
 </style>
