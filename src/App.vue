@@ -6,6 +6,7 @@
           <Datepicker 
             name="startDate"
             :value="startSource"
+            :disabled-dates="disabledDates"
             @selected="updateDate($event, 'startDate')"
           />
           <input type="text" :value="startSource">
@@ -14,6 +15,7 @@
           <Datepicker 
             name="endDate"
             :value="endSource"
+            :disabled-dates="disabledDates"
             @selected="updateDate($event, 'endDate')"
           />
           <input type="text" :value="endSource">
@@ -45,7 +47,7 @@ export default {
         datasets: [{
           data: [],
           startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
-          endDate: moment(new Date()).format('YYYY-MM-DD')
+          endDate: moment(new Date()).format('YYYY-MM-DD'),
         }]
       },
       chartOptions: {
@@ -59,6 +61,9 @@ export default {
             }]
         }
       },
+      disabledDates: {
+        from: new Date()
+      }
     }
   },
   computed: {
@@ -92,7 +97,7 @@ export default {
             backgroundColor: '#BFC8AD',
             borderColor: '#90B494',
             startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
-            endDate: moment(new Date()).format('YYYY-MM-DD')
+            endDate: moment(new Date()).format('YYYY-MM-DD'),
           }],       
           chartOptions: {
             responsive: true,
