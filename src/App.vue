@@ -1,37 +1,48 @@
 <template>
-  <div id="app">
+<div id="app" :class="modeValue">
+  <div class="appContainer">
     <Loading
       :active="!loaded"
       :can-cancel="false"
       :is-full-page="true"
     />
     <section class="controls">
+      <header>
+        <h1><span class="icon">&#8383;</span>Bitcoin price visualizer </h1>
+        <fieldset>
+          <label for="mode-selector">Mode selector</label>
+          <select name="mode-selector" id="modeSelector" v-model="modeValue" @change="updateChart()">
+            <option value="darkTheme">Fear of the dark</option>
+            <option value="lightTheme">Fear of the light</option>
+          </select>
+        </fieldset>
+      </header>
+
       <form @submit.prevent="updateChart()">
         <fieldset>
+          <label for="startDate">Start date</label>
           <Datepicker 
             name="startDate"
             :value="startSource"
-            :disabled-dates="disabledDates"
+            :disabled-dates="disabledStartDates"
             @selected="updateDate($event, 'startDate')"
           />
-          <input type="text" :value="startSource">
         </fieldset>
         <fieldset>
+          <label for="endDate">End date</label>
           <Datepicker 
             name="endDate"
             :value="endSource"
-            :disabled-dates="disabledDates"
+            :disabled-dates="disabledEndDates"
             @selected="updateDate($event, 'endDate')"
           />
-          <input type="text" :value="endSource">
         </fieldset>
         <button type="submit">Render chart</button>
       </form>
     </section>
-    <div id="chartWrapper">
-     <line-chart v-if="loaded" :chart-data="chartData" :options="chartOptions"/>
-    </div>
+    <line-chart v-if="loaded" :chart-data="chartData" :chart-options="chartOptions" :solidColor="solidColor" :transparentColor="transparentColor" />
   </div>
+</div>
 </template>
 
 <script>
@@ -41,7 +52,6 @@ import Datepicker from 'vuejs-datepicker'
 import moment from 'moment'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
-
 export default {
   name: 'App',
   components: {
@@ -50,26 +60,38 @@ export default {
   data() {
     return {
       loaded: false,
+      modeValue: 'darkTheme',
+      solidColor: 'red',
+      transparentColor: 'red',
+      style: getComputedStyle(document.getElementById('app')),
       chartData: {
         labels: [],
         datasets: [{
           data: [],
           startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
-          endDate: moment(new Date()).format('YYYY-MM-DD'),
-        }]
+          endDate: moment(new Date()).format('YYYY-MM-DD')
+        }],
       },
       chartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
         scales: {
             yAxes: [{
                 ticks: {
-                    beginAtZero:true
+                   
+                },
+                gridLines: {
+                  
+                }
+            }],
+            xAxes: [{
+                ticks: {
+                },
+                gridLines: {
+         
                 }
             }]
         }
       },
-      disabledDates: {
+      disabledStartDates: {
         from: new Date()
       }
     }
@@ -80,84 +102,84 @@ export default {
     },
     endSource: function() {
       return this.chartData.datasets[0].endDate
+    },
+    disabledEndDates: function() {
+      return {
+        from: new Date(),
+        to: new Date(this.startSource),
+      }; 
     }
   },
   methods: {
     updateDate(date, type) {
-      type === 'startDate' ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD') : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
+      type === 'startDate'
+        ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD')
+        : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
     },
     async updateChart() {
-      this.loaded = false;
-      
-      await this.fetchData();
+      this.loaded = false
+
+      await this.fetchData()
     },
     async fetchData() {
       try {
         const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
-        let fetchData = await response.json();
+        const fetchData = await response.json()
+
+        const style = getComputedStyle(document.getElementById('app'));
+        //const style = getComputedStyle(document.body);
+
+        this.solidColor = style.getPropertyValue('--accentColour')
+        this.transparentColor = this.solidColor.substring(0,this.solidColor.length -2) + '0)'
 
         this.chartData = {
           labels: Object.keys(fetchData.bpi),
           datasets: [{
             data: Object.values(fetchData.bpi),
-            backgroundColor: '#BFC8AD',
-            borderColor: '#90B494',
-            startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
-            endDate: moment(new Date()).format('YYYY-MM-DD'),
-          }],       
-          chartOptions: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero:true
-                    }
-                }]
-            }
-          },
+            borderColor: style.getPropertyValue('--accentColour'),
+            borderWidth: 3,
+            startDate: this.startSource,
+            endDate: this.endSource,
+          }],
         }
-        this.loaded = true;
+/*         this.chartOptions = {
+          scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:false,
+                    fontColor: 'lime'
+                },
+                gridLines: {
+                  color: 'lime',
+                  lineWidth: 1
+                }
+            }],
+            xAxes: [{
+                ticks: {
+                    fontColor: 'lime'
+                },
+                gridLines: {
+                  color: 'lime',
+                  lineWidth: 1
+                }
+            }]
+          }
+        } */
+
+        this.loaded = true
       } catch(error) {
-        this.loaded = true;
-        console.log('error')
+        this.loaded = true
+        console.log('error', error)
       }
     }
   },
-  async mounted() {
+  async mounted() { 
     this.loaded = false
-
     await this.fetchData()
   }
-
 } 
 </script>
 
 <style lang="scss">
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
-    text-align: center;
-    color: #2c3e50;
-  }
-  fieldset { 
-    border: none;
-    display: inline-block; 
-    }
-  .controls {
-    background-color: beige;
-    border-radius: 12px;
-    border: 1px solid darken(beige, 30%);
 
-    form {
-      display: flex;
-      justify-content: flex-start;
-      margin: 1rem;
-    }
-    button[type="submit"] { margin-left: auto; }
-  }
-  #chartWrapper {
-
-  }
 </style>
