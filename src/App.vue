@@ -156,3 +156,32 @@ export default {
   }
 } 
 </script>
+
+<style lang="scss">
+  * { 
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html { height: 100%; }
+  body {
+    position: relative;
+    min-height: 100vh;
+    font-family: 'Arimo', sans-serif;    
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+  }
+   #app {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    //background: var(--bkgColour-lighter);
+    background: linear-gradient(to bottom right, var(--bkgColour-lighter), var(--bkgColour-light)) no-repeat;
+  }
+  h1 {
+    font-size: 3rem;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+  }
+</style>
