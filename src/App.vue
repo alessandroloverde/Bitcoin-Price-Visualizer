@@ -142,29 +142,6 @@ export default {
             endDate: this.endSource,
           }],
         }
-/*         this.chartOptions = {
-          scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:false,
-                    fontColor: 'lime'
-                },
-                gridLines: {
-                  color: 'lime',
-                  lineWidth: 1
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    fontColor: 'lime'
-                },
-                gridLines: {
-                  color: 'lime',
-                  lineWidth: 1
-                }
-            }]
-          }
-        } */
 
         this.loaded = true
       } catch(error) {
