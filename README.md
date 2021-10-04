@@ -1,4 +1,4 @@
-# hello-world
+# Bitcoin Price Visualizer
 
 ## Project setup
 ```
