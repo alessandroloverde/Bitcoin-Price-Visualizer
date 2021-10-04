@@ -122,8 +122,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-   // height: 100vh;
-    background: var(--bkgColour-lighter);
+    //background: var(--bkgColour-lighter);
     background: linear-gradient(to bottom right, var(--bkgColour-lighter), var(--bkgColour-light)) no-repeat;
   }
   .appContainer {
@@ -139,14 +138,14 @@
     display: flex;
     align-items: center;
   }
-  .icon { 
+  .icon {
+    width: 1.5em;
+    height: 1.5em;
     color: var(--bkgColour-light);
     border: 4px solid var(--txtColour-1);
     background-color: var(--bkgColour-lighter);
     border-radius: 50%;
     padding: 0;
-    width: 1.5em;
-    height: 1.5em;
     display: flex;
     margin-right: $standarMargin/2; 
     justify-content: center;

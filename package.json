@@ -1,6 +1,7 @@
 {
-  "name": "hello-world",
+  "name": "bitcoin-price-visualizer",
   "version": "0.1.0",
+  "description": "Dashboard for displaying the historical Bitcoin price, given a date range. Built in Vue.js (dark and light theme included)",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
