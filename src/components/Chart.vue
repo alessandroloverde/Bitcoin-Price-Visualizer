@@ -1,71 +1,72 @@
 <script>
-  import { Line, mixins } from 'vue-chartjs'
-  const { reactiveProp } = mixins
+import { Line, mixins } from 'vue-chartjs'
+const { reactiveProp } = mixins
 
-  export default {
-    name: 'LineChart',
-    extends: Line,
-    mixins: [reactiveProp],
-    props: {
-      chartData: {
-        type: Object,
-        default: null
-      },
-      chartOptions: {
-        type: Object,
-        default: null
-      },
-      solidColor: {
-        type: String,
-        default: 'cyan'
-      },
-      transparentColor: {
-        type: String,
-        default: 'lime'
-      }
+export default {
+  name: 'LineChart',
+  extends: Line,
+  mixins: [reactiveProp],
+  props: {
+    chartData: {
+      type: Object,
+      default: null
     },
-     mounted () {
-      const ctx = document.getElementById('line-chart').getContext('2d');
-      let backgroundColor = ctx.createLinearGradient(0, 0, 0, 400);
-      const style = getComputedStyle(document.getElementById('app'));
-
-
-      backgroundColor.addColorStop(0, this.solidColor)
-      backgroundColor.addColorStop(1, this.transparentColor)
-      
-      const data = {
-        ...this.chartData,
-        ...this.chartData.datasets[0].backgroundColor = backgroundColor
-      }
-
-      this.renderChart(data, { 
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: false,
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:false,
-                    fontColor: style.getPropertyValue('--txtColour-1')
-                },
-                gridLines: {
-                  color: style.getPropertyValue('--accentColour'),
-                  lineWidth: 1
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    fontColor: style.getPropertyValue('--txtColour-1')
-                },
-                gridLines: {
-                  color: style.getPropertyValue('--accentColour'),
-                  lineWidth: 1
-                }
-            }]
-        }
-      })
+    chartOptions: {
+      type: Object,
+      default: null
+    },
+    solidColor: {
+      type: String,
+      default: 'cyan'
+    },
+    transparentColor: {
+      type: String,
+      default: 'lime'
     }
+  },
+  mounted () {
+    const ctx = document.getElementById('line-chart').getContext('2d')
+    const backgroundColor = ctx.createLinearGradient(0, 0, 0, 400)
+    const style = getComputedStyle(document.getElementById('app'))
+
+    backgroundColor.addColorStop(0, this.solidColor)
+    backgroundColor.addColorStop(1, this.transparentColor)
+
+    const data = {
+      ...this.chartData,
+      // TODO: check fix
+      // eslint-disable-next-line vue/no-mutating-props
+      ...this.chartData.datasets[0].backgroundColor = backgroundColor
+    }
+
+    this.renderChart(data, {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: false,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: false,
+            fontColor: style.getPropertyValue('--txtColour-1')
+          },
+          gridLines: {
+            color: style.getPropertyValue('--accentColour'),
+            lineWidth: 1
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            fontColor: style.getPropertyValue('--txtColour-1')
+          },
+          gridLines: {
+            color: style.getPropertyValue('--accentColour'),
+            lineWidth: 1
+          }
+        }]
+      }
+    })
   }
+}
 </script>
 
 <style lang="scss">
@@ -76,7 +77,7 @@
   $borderRadius: 20px;
   $buttonsPadding: $standarMargin/4 $standarMargin/2;
 
-  :root {    
+  :root {
     --ctoColour: #f5822e;
     --bkgColour: #2b2b42;
     --bkgColour-light: #4e5586;
@@ -85,7 +86,7 @@
     --txtColour-2: var(--txtColour-1);
     --accentColour: rgba(90,132,252, 0.5);
   }
-  .lightTheme {    
+  .lightTheme {
     --ctoColour:#e2816a;
     --bkgColour:#efefef;
     --bkgColour-light: #5e5055;
@@ -98,7 +99,7 @@
   @mixin buttonAspect {
     padding: $buttonsPadding;
     color: var(--txtColour-2);
-    font-family: 'Arimo', sans-serif;    
+    font-family: 'Arimo', sans-serif;
     font-weight: 800;
     font-size: 1rem;
     border-radius: $borderRadius;
@@ -121,7 +122,7 @@
     border-radius: 50%;
     padding: 0;
     display: flex;
-    margin-right: $standarMargin/2; 
+    margin-right: $standarMargin/2;
     justify-content: center;
     line-height: 1.35;
     }
@@ -129,9 +130,9 @@
     padding: $standarMargin;
     position: relative;
   }
-  fieldset { 
+  fieldset {
     border: none;
-    display: inline-block; 
+    display: inline-block;
 
     & + fieldset {
       margin-left: $standarMargin/2;
@@ -161,7 +162,7 @@
       justify-content: flex-start;
       align-items: flex-end;
     }
-    button[type="submit"] { 
+    button[type="submit"] {
       @include buttonAspect;
 
       background-color: var(--ctoColour);
@@ -219,19 +220,19 @@
       .cell:not(.blank).disabled.day {
         color: var(--bkgColour-lighter);
       }
-      header .prev:not(.disabled):hover, 
+      header .prev:not(.disabled):hover,
       header .next:not(.disabled):hover {
-        border-radius: 50%; 
-        background: var(--bkgColour-lighter); 
+        border-radius: 50%;
+        background: var(--bkgColour-lighter);
       }
       header .up:not(.disabled):hover {
-        border-radius: 1em; 
-        background: var(--bkgColour-lighter); 
+        border-radius: 1em;
+        background: var(--bkgColour-lighter);
       }
-      .prev::after { border-right-color: var(--ctoColour); } 
-      .next::after { border-left-color: var(--ctoColour); } 
-      .prev.disabled::after { border-right-color: var(--bkgColour-lighter); } 
-      .next.disabled::after { border-left-color: var(--bkgColour-lighter); } 
+      .prev::after { border-right-color: var(--ctoColour); }
+      .next::after { border-left-color: var(--ctoColour); }
+      .prev.disabled::after { border-right-color: var(--bkgColour-lighter); }
+      .next.disabled::after { border-left-color: var(--bkgColour-lighter); }
     }
   }
 </style>
