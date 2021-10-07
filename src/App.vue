@@ -21,7 +21,7 @@
       <form @submit.prevent="updateChart()">
         <fieldset>
           <label for="startDate">Start date</label>
-          <Datepicker 
+          <Datepicker
             name="startDate"
             :value="startSource"
             :disabled-dates="disabledStartDates"
@@ -30,7 +30,7 @@
         </fieldset>
         <fieldset>
           <label for="endDate">End date</label>
-          <Datepicker 
+          <Datepicker
             name="endDate"
             :value="endSource"
             :disabled-dates="disabledEndDates"
@@ -57,7 +57,7 @@ export default {
   components: {
     LineChart, Datepicker, Loading
   },
-  data() {
+  data () {
     return {
       loaded: false,
       modeValue: 'darkTheme',
@@ -68,28 +68,9 @@ export default {
         labels: [],
         datasets: [{
           data: [],
-          startDate: moment(new Date()).subtract(10, "days").format('YYYY-MM-DD'),
+          startDate: moment(new Date()).subtract(10, 'days').format('YYYY-MM-DD'),
           endDate: moment(new Date()).format('YYYY-MM-DD')
-        }],
-      },
-      chartOptions: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                   
-                },
-                gridLines: {
-                  
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                },
-                gridLines: {
-         
-                }
-            }]
-        }
+        }]
       },
       disabledStartDates: {
         from: new Date()
@@ -97,40 +78,40 @@ export default {
     }
   },
   computed: {
-    startSource: function() {
+    startSource: function () {
       return this.chartData.datasets[0].startDate
     },
-    endSource: function() {
+    endSource: function () {
       return this.chartData.datasets[0].endDate
     },
-    disabledEndDates: function() {
+    disabledEndDates: function () {
       return {
         from: new Date(),
-        to: new Date(this.startSource),
-      }; 
+        to: new Date(this.startSource)
+      }
     }
   },
   methods: {
-    updateDate(date, type) {
+    updateDate (date, type) {
       type === 'startDate'
         ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD')
         : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
     },
-    async updateChart() {
+    async updateChart () {
       this.loaded = false
 
       await this.fetchData()
     },
-    async fetchData() {
+    async fetchData () {
       try {
         const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
         const fetchData = await response.json()
 
-        const style = getComputedStyle(document.getElementById('app'));
-        //const style = getComputedStyle(document.body);
+        const style = getComputedStyle(document.getElementById('app'))
+        // const style = getComputedStyle(document.body);
 
         this.solidColor = style.getPropertyValue('--accentColour')
-        this.transparentColor = this.solidColor.substring(0,this.solidColor.length -2) + '0)'
+        this.transparentColor = this.solidColor.substring(0, this.solidColor.length - 2) + '0)'
 
         this.chartData = {
           labels: Object.keys(fetchData.bpi),
@@ -139,24 +120,58 @@ export default {
             borderColor: style.getPropertyValue('--accentColour'),
             borderWidth: 3,
             startDate: this.startSource,
-            endDate: this.endSource,
-          }],
+            endDate: this.endSource
+          }]
         }
 
         this.loaded = true
-      } catch(error) {
+      } catch (error) {
         this.loaded = true
         console.log('error', error)
       }
     }
   },
-  async mounted() { 
+  async mounted () {
     this.loaded = false
     await this.fetchData()
   }
-} 
+}
 </script>
 
 <style lang="scss">
-
+  @mixin buttonAspect {
+    padding: $buttonsPadding;
+    color: var(--txtColour-2);
+    font-family: 'Arimo', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    border-radius: $borderRadius;
+    border: 2px solid transparent;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html { height: 100%; }
+  body {
+    position: relative;
+    min-height: 100vh;
+    font-family: 'Arimo', sans-serif;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+  }
+   #app {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    //background: var(--bkgColour-lighter);
+    background: linear-gradient(to bottom right, var(--bkgColour-lighter), var(--bkgColour-light)) no-repeat;
+  }
+  h1 {
+    font-size: 3rem;
+    text-transform: capitalize;
+    display: flex;
+    align-items: center;
+  }
 </style>
