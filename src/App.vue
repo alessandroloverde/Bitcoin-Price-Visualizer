@@ -175,7 +175,7 @@ export default {
     align-items: center;
   }
 
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 979px) {
     .appContainer {
       margin: 0;
       border-radius: 0;
@@ -198,6 +198,15 @@ export default {
             flex-basis: 2.5em;
             height: auto;
           }
+        }
+      }
+      form {
+        flex-direction: column;
+        align-items: center;
+
+        fieldset { margin: 0.5rem auto; }
+        button[type="submit"] {
+          margin: 1rem auto;
         }
       }
     }
