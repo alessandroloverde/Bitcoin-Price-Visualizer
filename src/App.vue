@@ -174,4 +174,32 @@ export default {
     display: flex;
     align-items: center;
   }
+
+  @media screen and (max-width: 767px) {
+    .appContainer {
+      margin: 0;
+      border-radius: 0;
+      padding: 2rem;
+    }
+    .controls {
+      & > header {
+        flex-direction: column;
+
+        & fieldset {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin-top: 1.5rem;
+        }
+        h1 {
+          font-size: 2rem;
+
+          .icon {
+            flex-basis: 2.5em;
+            height: auto;
+          }
+        }
+      }
+    }
+  }
 </style>
