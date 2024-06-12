@@ -23,7 +23,7 @@
           <label for="startDate">Start date</label>
           <Datepicker
             name="startDate"
-            :value="startSource"
+            :value="startingDate"
             :disabled-dates="disabledStartDates"
             @selected="updateDate($event, 'startDate')"
           />
@@ -32,7 +32,7 @@
           <label for="endDate">End date</label>
           <Datepicker
             name="endDate"
-            :value="endSource"
+            :value="endingDate"
             :disabled-dates="disabledEndDates"
             @selected="updateDate($event, 'endDate')"
           />
@@ -40,7 +40,12 @@
         <button type="submit">Render chart</button>
       </form>
     </section>
-    <line-chart v-if="loaded" :chart-data="chartData" :chart-options="chartOptions" :solidColor="solidColor" :transparentColor="transparentColor" />
+    <line-chart 
+        v-if="loaded" 
+        :chart-data="chartData" 
+        :solidColor="solidColor" 
+        :transparentColor="transparentColor"
+    />
   </div>
 </div>
 </template>
@@ -63,13 +68,16 @@ export default {
       modeValue: 'darkTheme',
       solidColor: 'red',
       transparentColor: 'red',
+      startingDate: moment(new Date()).subtract(20, 'days').format('YYYY-MM-DD'),
+      endingDate: moment(new Date()).format('YYYY-MM-DD'),
       style: getComputedStyle(document.getElementById('app')),
+      prices: null,
       chartData: {
         labels: [],
         datasets: [{
           data: [],
-          startDate: moment(new Date()).subtract(10, 'days').format('YYYY-MM-DD'),
-          endDate: moment(new Date()).format('YYYY-MM-DD')
+          startDate: null,
+          endDate: null
         }]
       },
       disabledStartDates: {
@@ -94,8 +102,8 @@ export default {
   methods: {
     updateDate (date, type) {
       type === 'startDate'
-        ? this.chartData.datasets[0].startDate = moment(date).format('YYYY-MM-DD')
-        : this.chartData.datasets[0].endDate = moment(date).format('YYYY-MM-DD')
+      ? this.startingDate = moment(date).format('YYYY-MM-DD') 
+      : this.endingDate = moment(date).format('YYYY-MM-DD')
     },
     async updateChart () {
       this.loaded = false
@@ -104,8 +112,20 @@ export default {
     },
     async fetchData () {
       try {
-        const response = await fetch(`https://api.coindesk.com/v1/bpi/historical/close.json?start=${this.startSource}&end=${this.endSource}`)
+        const startTimestamp = Math.floor(new Date(this.startingDate).getTime() / 1000);
+        const endTimestamp = Math.floor(new Date(this.endingDate).getTime() / 1000);
+        
+        /* const response = await fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=8&interval=daily`) */
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=usd&from=${startTimestamp}&to=${endTimestamp}`)
         const fetchData = await response.json()
+
+        this.prices = fetchData.prices.reduce((acc, [timestamp, price]) => {
+          const date = new Date(timestamp).toISOString().split('T')[0];
+
+          acc[date] = price.toFixed(0);
+
+          return acc;
+        }, {})
 
         const style = getComputedStyle(document.getElementById('app'))
         // const style = getComputedStyle(document.body);
@@ -113,18 +133,19 @@ export default {
         this.solidColor = style.getPropertyValue('--accentColour')
         this.transparentColor = this.solidColor.substring(0, this.solidColor.length - 2) + '0)'
 
-        this.chartData = {
-          labels: Object.keys(fetchData.bpi),
+        this.chartData = await {
+          labels: Object.keys(this.prices),
           datasets: [{
-            data: Object.values(fetchData.bpi),
+            data: Object.values(this.prices),
             borderColor: style.getPropertyValue('--accentColour'),
             borderWidth: 3,
-            startDate: this.startSource,
-            endDate: this.endSource
+            startDate: this.startingDate,
+            endDate: this.endingDate
           }]
         }
 
         this.loaded = true
+
       } catch (error) {
         this.loaded = true
         console.log('error', error)
@@ -132,7 +153,10 @@ export default {
     }
   },
   async mounted () {
-    this.loaded = false
+    this.loaded = true
+    this.chartData.datasets[0].startDate = this.startingDate
+    this.chartData.datasets[0].endDate = this.endingDate
+    
     await this.fetchData()
   }
 }

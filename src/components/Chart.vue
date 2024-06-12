@@ -34,8 +34,6 @@ export default {
 
     const data = {
       ...this.chartData,
-      // TODO: check fix
-      // eslint-disable-next-line vue/no-mutating-props
       ...this.chartData.datasets[0].backgroundColor = backgroundColor
     }
 
