@@ -1,4 +1,4 @@
-# Bitcoin Price Visualizer
+# Bitcoin Price Visualizer mod. 12/6/2024
 
 ## Project setup
 ```
